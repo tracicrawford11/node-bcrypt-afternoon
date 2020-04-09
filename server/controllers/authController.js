@@ -2,14 +2,14 @@ const bcrypt = require("bcryptjs");
 
 register = async (req, res) => {
     const { username, password, isAdmin } = req.body;
-    const db = await req.app.get("db");
+    const db = req.app.get("db");
     const result = await db.check_existing_user([username]);
-    const existingUser = await result[0]
+    const existingUser = result[0]
     if(existingUser) {
         res.status(409).json("Username taken.")
     } else {
-        const salt = await bcrypt.genSaltSync(10)
-        const hash = await bcrypt.hashSync(password, salt);
+        const salt = bcrypt.genSaltSync(10)
+        const hash = bcrypt.hashSync(password, salt);
         const registeredUser = await db.register_user([isAdmin, username, hash]);
         const user = registeredUser[0];
         req.session.user = {
